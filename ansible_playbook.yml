@@ -1,0 +1,27 @@
+---
+
+- name: Refresh inventory to ensure new instances exist in inventory (optional)
+  hosts: all
+  run_once: true
+  tasks:
+    - meta: refresh_inventory
+
+- name: Create Remote Target Hosts group
+  hosts: all
+  connection: local
+  run_once: true
+  tasks:
+    - include_role:
+        name: create_target_host_group
+
+
+- name: Install Package
+  hosts: remote_target_group
+  vars:
+    ansible_python_interpreter: /usr/bin/python
+  connection: paramiko
+  tasks:
+    - include_role:
+        name: common
+    - include_role:
+        name: "{{ technology_name }}_install"

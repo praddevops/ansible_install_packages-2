@@ -1,0 +1,6 @@
+# ansible_python_interpreter: /usr/bin/python3
+remote_user: jenkins
+
+# orig_cluster_name: "{{hostvars[inventory_hostname].networkInterfaces[0].subnetwork.region|lower}}_{{hostvars[inventory_hostname].labels['technology']|lower}}"
+# replace '-' with '_' (when keyed_groups are created by dynamic inventory, '-' are replaced by '_' in the group names)
+# cluster_name: "{{ orig_cluster_name | regex_replace('-','_') }}"

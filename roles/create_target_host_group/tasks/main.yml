@@ -1,0 +1,15 @@
+---
+- name: Create group of target instances where the technology will be installed
+  add_host:
+    groups: remote_target_group
+    name: "{{ item }}"
+  with_items: "{{ groups[technology_name] }}"
+  delegate_to: localhost
+
+- name: Validate remote_target_group is created
+  assert:
+    that:
+      - groups['remote_target_group'] is defined
+    fail_msg: "ERROR: Missing or invalid remote_target_group"
+    success_msg: "OK: Cluster remote_target_group created"
+  delegate_to: localhost

@@ -1,0 +1,81 @@
+---
+
+- name: Download Tomcat and set sym links
+  become: yes
+  shell: |
+    groupadd tomcat 
+    useradd -s /bin/nologin -g tomcat -d /opt/tomcat tomcat
+    mkdir -p /opt/tomcat && chmod -R 755 /opt/tomcat && cd /opt/tomcat
+    wget https://www-us.apache.org/dist/tomcat/tomcat-8/v8.5.53/bin/apache-tomcat-8.5.53.tar.gz
+    tar -xzf apache-tomcat-8.5.53.tar.gz -C /opt/tomcat --strip-components=1
+    cd /opt/tomcat
+    chgrp -R tomcat conf
+    chmod g+r conf/*
+    chown -R tomcat logs/ temp/ webapps/ work/
+    chgrp -R tomcat bin
+    chgrp -R tomcat lib
+    chmod g+rwx bin
+    chmod g+r bin/*
+    ln -s /opt/tomcat/bin/startup.sh /usr/sbin/tomcatup
+    ln -s /opt/tomcat/bin/shutdown.sh /usr/sbin/tomcatdown
+    chmod +x /opt/tomcat/bin/startup.sh /opt/tomcat/bin/shutdown.sh
+  register: execute_shell
+  until: execute_shell is not failed
+  retries: 20
+  delay: 10
+
+
+- name: Configure role
+  become: yes
+  xml:
+    path: /opt/tomcat/conf/tomcat-users.xml
+    pretty_print: yes
+    namespaces:
+      x: http://tomcat.apache.org/xml
+      y: http://www.w3.org/2001/XMLSchema-instance
+      z: "http://tomcat.apache.org/xml tomcat-users.xsd"
+    xpath: /x:tomcat-users/role
+    attribute: rolename
+    value: manager-gui
+
+- name: Add user element in tomcat-users.xml
+  become: yes
+  xml:
+    path: /opt/tomcat/conf/tomcat-users.xml
+    pretty_print: yes
+    namespaces:
+      x: http://tomcat.apache.org/xml
+      y: http://www.w3.org/2001/XMLSchema-instance
+      z: "http://tomcat.apache.org/xml tomcat-users.xsd"
+    xpath: /x:tomcat-users/user
+    attribute: multiattr
+    value: multiattr_string
+
+- name: Configure user element in tomcat-users.xml
+  become: yes
+  shell: |
+    sed -i 's,multiattr=.multiattr_string.,username="admin" password="s3cret" roles="manager-gui",' /opt/tomcat/conf/tomcat-users.xml
+  register: user_config_success
+  until: user_config_success is not failed
+  retries: 5
+  delay: 5
+
+#WIP
+#- name: Configure Tomcat
+#  xml:
+#    path: /opt/tomcat/webapps/manager/META-INF/context.xml
+#    pretty_print: yes
+#    xpath: Context/Valve
+#    print_match : yes
+
+- name: Configure connection setting in context.xml and start tomcat
+  become: yes
+  shell: |
+    sed -i 's,<Valve.*,,' /opt/tomcat/webapps/manager/META-INF/context.xml
+    sed -i 's,allow.*,,' /opt/tomcat/webapps/manager/META-INF/context.xml
+    tomcatdown
+    tomcatup
+  register: conn_config_success
+  until: conn_config_success is not failed
+  retries: 5
+  delay: 5
