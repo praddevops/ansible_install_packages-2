@@ -1,0 +1,23 @@
+---
+- name: install java
+  become: yes
+  yum:
+    name: java
+    state: present
+
+- name: install wget
+  become: yes
+  yum:
+    name: wget
+    state: present
+
+# wrap input to echo in single quotes to prevent $JAVA_HOME and $PATH from expanding before writing to the file
+- name: set JAVA_HOME path
+  become: yes
+  shell: |
+    echo "export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" > /etc/profile.d/custom.sh
+    echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /etc/profile.d/custom.sh
+  register: set_java_home
+  until: set_java_home is not failed
+  retries: 10
+  delay: 5
