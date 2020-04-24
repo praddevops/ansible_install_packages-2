@@ -1,7 +1,7 @@
 # ansible_install_packages
 
 * Ansible playbook to install services on gcp/aws compute instances (services like tomcat, jboss, kafka etc.). 
-* Jenkins credentials should contain: ssh private key (jenkins credential type: secret file, credential id: ```ssh_key```) to connect to the compute instance. Following users must be configured on the remote instances - AWS EC2: ```ec2-user``` GCP: ```jenkins```
+* Jenkins credentials should contain: ssh private key (jenkins credential type: secret file, credential id: ```ssh_key```) to connect to the compute instance
 * If installing the service on gcp compute instance, Jenkins credentials should contain (jenkins credential type: secret file): gcp service account key (jenkins credential id: ```gcp_service_account_key```) 
 * If installing the service on aws ec2 instance, Jenkins credentials should contain (jenkins credentials type: secret text): aws access key id (jenkins credential id: ```aws_access_key_id```) and aws secret access key (jenkins credential id: ```aws_access_key```)
 * Target host should have python3 installed and rpm based operating system that uses yum based package manager
@@ -12,7 +12,7 @@
  
 ### Jenkinsfile based CICD
 
-* Jenkins input: ```Service``` - service that needs to be installed (Currently supported services: tomcat), 	(```AWS_EC2``` == true OR ```GCP_PROJECT```: "gcp project id")
+* Jenkins input: ```Service``` - service that needs to be installed (Currently supported services: tomcat), 	(```AWS_EC2``` == true OR ```GCP_PROJECT```: gcp project id), 	ANSIBLE_REMOTEUSER (remote username for Ansible to connect as, to the remote instance. Ex: For AWS EC2 instance with Amazon Linux 2 AMI default username is: ec2-user)
 
 * Additional required Jenkins plugins: AnsiColor
 
