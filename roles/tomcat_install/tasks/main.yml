@@ -25,7 +25,7 @@
   delay: 10
 
 
-- name: Configure role
+- name: Configure tomcat role
   become: yes
   xml:
     path: /opt/tomcat/conf/tomcat-users.xml
@@ -73,8 +73,8 @@
   shell: |
     sed -i 's,<Valve.*,,' /opt/tomcat/webapps/manager/META-INF/context.xml
     sed -i 's,allow.*,,' /opt/tomcat/webapps/manager/META-INF/context.xml
-    tomcatdown
-    tomcatup
+    sudo tomcatdown
+    sudo tomcatup
   register: conn_config_success
   until: conn_config_success is not failed
   retries: 5
