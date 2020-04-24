@@ -14,7 +14,8 @@ pipeline {
     parameters {
        string(name: 'Service', defaultValue: '', description: 'Service that needs to be installed')
        booleanParam(name: 'AWS_EC2', defaultValue: false, description: 'Check to create Tomcat Service in AWS EC2. If checked GCP_PROJECT will be ignored')
-       string(name: 'GCP_PROJECT', defaultValue: '', description: 'GCP Project ID')    
+       string(name: 'GCP_PROJECT', defaultValue: '', description: 'GCP Project ID')  
+       string(name: 'ANSIBLE_REMOTEUSER', defaultValue: 'jenkins', description: 'remote username for Ansible to connect as, to the remote machine')
     }
 
     environment {
@@ -25,7 +26,7 @@ pipeline {
        TECHNOLOGY = "${params.Service}"
        AWS_PROJECT = "${params.AWS_EC2}"
        GCP_PROJECT_ID = "${params.GCP_PROJECT}"
-       SSH_USER = "jenkins"
+       SSH_USER = "${params.ANSIBLE_REMOTEUSER}"
        ANSIBLE_HOST_KEY_CHECKING="false"
        ANSIBLE_RETRY_FILES_ENABLED="false"
        ANSIBLE_LOG_PATH="out.log"
@@ -51,7 +52,6 @@ pipeline {
                 if ("${AWS_PROJECT}" == "true" ) {
                     print ("AWS_EC2 is selected")
                     INVENTORY_FILE="inventory/devops-project.aws_ec2.yml"
-                    SSH_USER="ec2-user"
                     ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY} remote_user=${SSH_USER}"
                     sh """
                     sed -i "s,aws_accss_key_id, ${AWS_ACCESS_KEY_ID}," "${INVENTORY_FILE}"
@@ -60,7 +60,7 @@ pipeline {
                 } else if ("${GCP_PROJECT_ID}" != null && "${GCP_PROJECT_ID}" != ''){ 
                     INVENTORY_FILE="inventory/devops-project.gcp.yml"
                     GCP_APP_CREDENTIALS = "gcp_key.json"
-                    ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY}"
+                    ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY} remote_user=${SSH_USER}"
                     sh """
                     cat "${GCP_SERV_ACC_KEY}" > "${GCP_APP_CREDENTIALS}"
                     sed -i "s,service_account_file:.*,service_account_file: ${GCP_APP_CREDENTIALS}," "${INVENTORY_FILE}"
