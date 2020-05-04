@@ -1,7 +1,7 @@
 # ansible_install_packages
 
 * Ansible playbook to install services on gcp/aws compute instances (services like tomcat, jboss, kafka etc.). 
-* Jenkins credentials should contain: ssh private key (jenkins credential type: secret file, credential id: ```ssh_key```) to connect to the compute instance
+* Jenkins credentials should contain: ssh private key (jenkins credential type: SSH Username with private key, credential id: ```ssh_key```) to connect to the compute instance
 * If installing the service on gcp compute instance, Jenkins credentials should contain (jenkins credential type: secret file): gcp service account key (jenkins credential id: ```gcp_service_account_key```) 
 * If installing the service on aws ec2 instance, Jenkins credentials should contain (jenkins credentials type: secret text): aws access key id (jenkins credential id: ```aws_access_key_id```) and aws secret access key (jenkins credential id: ```aws_access_key```)
 * Target host should have python3 installed (run `sudo yum install python3` on the Jenkins server) and rpm based operating system that uses yum based package manager
