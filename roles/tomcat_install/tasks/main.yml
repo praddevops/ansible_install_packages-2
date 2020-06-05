@@ -6,8 +6,8 @@
     groupadd tomcat 
     useradd -s /bin/nologin -g tomcat -d /opt/tomcat tomcat
     mkdir -p /opt/tomcat && chmod -R 755 /opt/tomcat && cd /opt/tomcat
-    wget https://www-us.apache.org/dist/tomcat/tomcat-8/v8.5.53/bin/apache-tomcat-8.5.53.tar.gz
-    tar -xzf apache-tomcat-8.5.53.tar.gz -C /opt/tomcat --strip-components=1
+    wget https://mirrors.sonic.net/apache/tomcat/tomcat-8/v8.5.55/bin/apache-tomcat-8.5.55.tar.gz
+    tar -xzf apache-tomcat-8.5.55.tar.gz -C /opt/tomcat --strip-components=1
     cd /opt/tomcat
     chgrp -R tomcat conf
     chmod g+r conf/*
