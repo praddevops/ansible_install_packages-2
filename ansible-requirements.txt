@@ -4,7 +4,7 @@ docopt==0.6.2
 google-auth==1.6.3
 jmespath==0.9.4
 pycryptodome==3.8.1
-requests==2.21.0
+requests==2.31.0
 paramiko==2.10.1
 python-consul==1.1.0
 lxml>=2.3.0
