@@ -8,6 +8,8 @@
 
 ### Prerequsite: For gcp instance: should have a label with key - 'technology', which represents the service that needs to be installed. For EC2 instance: should have a tag with key - 'technology'. Example: technology: tomcat
 
+* rust (>=1.56.0) is required for Ansible. Make sure rust installed for the user the Jenkins runs as. You can install rust on the Jenkins node (Linux) with ```curl https://sh.rustup.rs -sSf | sh```
+
 ## Jenkins Configuration
  
 ### Jenkinsfile based CICD
@@ -15,6 +17,7 @@
 * Jenkins input: ```Service``` - service that needs to be installed (Currently supported services: tomcat), 	(```AWS_EC2``` == true OR ```GCP_PROJECT```: gcp project id), 	ANSIBLE_REMOTEUSER (remote username for Ansible to connect as, to the remote instance. Ex: For AWS EC2 instance with Amazon Linux 2 AMI default username is: ec2-user)
 
 * Additional required Jenkins plugins: AnsiColor
+
 
 ## Tomcat specific
 

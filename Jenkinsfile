@@ -20,7 +20,6 @@ pipeline {
 
     environment {
        GCP_SERV_ACC_KEY = credentials('gcp_service_account_key')
-       SSH_PRIV_KEY = credentials('ssh_key')
        AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
        AWS_ACCESS_KEY = credentials('aws_access_key')
        TECHNOLOGY = "${params.Service}"
@@ -37,6 +36,7 @@ pipeline {
             steps {
               sh"""
               set +x
+              . $HOME/.cargo/env
               mkdir -p ansible_env
               python3 -m venv ansible_env --system-site-packages
               . ansible_env/bin/activate
@@ -75,15 +75,17 @@ pipeline {
         }
         stage('Run Ansible Playbook') {
             steps {
+                withCredentials([string(credentialsId: 'ssh_key', variable: 'ssh_key_pem')]){
               sh """
-              set +x
-              cat "${SSH_PRIV_KEY}" > ssh_key
-              chmod 400 ssh_key              
-              sed -i 's/technology_label_value/${TECHNOLOGY}/' ${INVENTORY_FILE}
-              . ansible_env/bin/activate
-              ansible-playbook --private-key ssh_key -u ${SSH_USER} -i ${INVENTORY_FILE} ansible_playbook.yml -e "${ANSIBLE_EXTRA_VARS}"
-              """
-             
+                 set +x           
+                 sed -i 's/technology_label_value/${TECHNOLOGY}/' ${INVENTORY_FILE}
+                 . ansible_env/bin/activate
+                 echo "${ssh_key_pem}" >> keyfile
+                 chmod 400 keyfile
+                 echo "SSH TEST COMPLETE"
+                 ansible-playbook --private-key keyfile -u ${SSH_USER} -i ${INVENTORY_FILE} ansible_playbook.yml -e "${ANSIBLE_EXTRA_VARS}"
+                 """
+                }
              }
         }
     }
