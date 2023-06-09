@@ -82,7 +82,6 @@ pipeline {
                  . ansible_env/bin/activate
                  echo "${ssh_key_pem}" >> keyfile
                  chmod 400 keyfile
-                 echo "SSH TEST COMPLETE"
                  ansible-playbook --private-key keyfile -u ${SSH_USER} -i ${INVENTORY_FILE} ansible_playbook.yml -e "${ANSIBLE_EXTRA_VARS}"
                  """
                 }
