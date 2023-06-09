@@ -49,3 +49,12 @@
   until: context_file_copy is not failed
   retries: 5
   delay: 5
+  
+- name: Start Tomcat
+  become: yes
+  shell: |
+    tomcatup
+  register: tomcat_startup
+  until: tomcat_startup is not failed
+  retries: 20
+  delay: 10
