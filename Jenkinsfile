@@ -30,7 +30,7 @@ pipeline {
        ANSIBLE_RETRY_FILES_ENABLED="false"
        ANSIBLE_LOG_PATH="out.log"
     }
-// 'source' is not supported in some debian based jenkins. so using '. ansible_env/bin/activate' instead of 'source ansible_env/bin/activate'
+// 'source' is only supported by bash interpreter. so using '. ansible_env/bin/activate' instead of 'source ansible_env/bin/activate'
     stages {
         stage('Install Ansible') {
             steps {
