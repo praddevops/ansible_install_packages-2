@@ -8,7 +8,7 @@
 
 ### Prerequsite: For gcp instance: should have a label with key - 'technology', which represents the service that needs to be installed. For EC2 instance: should have a tag with key - 'technology'. Example: technology: tomcat
 
-* rust (>=1.56.0) is required for Ansible. Make sure rust installed for the user the Jenkins runs as. You can install rust on the Jenkins node (Linux) with ```curl https://sh.rustup.rs -sSf | sh```
+* rust (>=1.56.0) is required for Ansible. Make sure rust is installed for the user the Jenkins runs as. You can install rust (you can customize rust installation to select minimal) on the Jenkins node (Linux) with ```curl https://sh.rustup.rs -sSf | sh```
 
 ## Jenkins Configuration
  
