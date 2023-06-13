@@ -14,7 +14,7 @@ pipeline {
     parameters {
        string(name: 'Service', defaultValue: '', description: 'Service that needs to be installed')
        booleanParam(name: 'AWS_EC2', defaultValue: false, description: 'Check to create Tomcat Service in AWS EC2. If checked GCP_PROJECT will be ignored')
-       string(name: 'GCP_PROJECT', defaultValue: '', description: 'GCP Project ID')  
+       string(name: 'GCP_PROJECT', defaultValue: '', description: 'GCP Project ID')
        string(name: 'ANSIBLE_REMOTEUSER', defaultValue: 'jenkins', description: 'remote username for Ansible to connect as, to the remote machine')
     }
 
@@ -32,14 +32,10 @@ pipeline {
     }
 // 'source' is only supported by bash interpreter. so using '. ansible_env/bin/activate' instead of 'source ansible_env/bin/activate'
     stages {
-        stage('Install Ansible') {
+        stage('Install Ansible Dependencies') {
             steps {
               sh"""
               set +x
-              . $HOME/.cargo/env
-              mkdir -p ansible_env
-              python3 -m venv ansible_env --system-site-packages
-              . ansible_env/bin/activate
               python3 -m pip install --no-cache-dir --upgrade pip
               python3 -m pip install --no-cache-dir -r ansible-requirements.txt
               python3 -m pip list
@@ -52,7 +48,7 @@ pipeline {
                 if ("${AWS_PROJECT}" == "true" ) {
                     print ("AWS_EC2 is selected")
                     INVENTORY_FILE="inventory/devops-project.aws_ec2.yml"
-                    ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY} remote_user=${SSH_USER}"
+                    ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY}"
                     sh """
                     sed -i "s,aws_accss_key_id, ${AWS_ACCESS_KEY_ID}," "${INVENTORY_FILE}"
                     sed -i "s,aws_key, ${AWS_ACCESS_KEY}," "${INVENTORY_FILE}"
@@ -60,7 +56,7 @@ pipeline {
                 } else if ("${GCP_PROJECT_ID}" != null && "${GCP_PROJECT_ID}" != ''){ 
                     INVENTORY_FILE="inventory/devops-project.gcp.yml"
                     GCP_APP_CREDENTIALS = "gcp_key.json"
-                    ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY} remote_user=${SSH_USER}"
+                    ANSIBLE_EXTRA_VARS="technology_name=${TECHNOLOGY}"
                     sh """
                     cat "${GCP_SERV_ACC_KEY}" > "${GCP_APP_CREDENTIALS}"
                     sed -i "s,service_account_file:.*,service_account_file: ${GCP_APP_CREDENTIALS}," "${INVENTORY_FILE}"
@@ -75,16 +71,12 @@ pipeline {
         }
         stage('Run Ansible Playbook') {
             steps {
-                withCredentials([string(credentialsId: 'ssh_key', variable: 'ssh_key_pem')]){
-              sh """
+                 sh """
                  set +x           
-                 sed -i 's/technology_label_value/${TECHNOLOGY}/' ${INVENTORY_FILE}
-                 . ansible_env/bin/activate
-                 echo "${ssh_key_pem}" >> keyfile
-                 chmod 400 keyfile
-                 ansible-playbook --private-key keyfile -u ${SSH_USER} -i ${INVENTORY_FILE} ansible_playbook.yml -e "${ANSIBLE_EXTRA_VARS}"
+                 sed -i 's/technology_label_value/${TECHNOLOGY}/' ${INVENTORY_FILE}           
                  """
-                }
+                 // note: jenkins variables (ANSIBLE_EXTRA_VARS,INVENTORY_FILE below) when passing as arguments to the ansible plugin must be wrapped in double quotes only (single quotes aren't working), Tested with Jenkins version: 2.409 and Ansible plugin version: 217.v1696cee03265
+                 ansiblePlaybook credentialsId: 'remote_target_ssh_priv_key', extras: "-u ${SSH_USER} -e ${ANSIBLE_EXTRA_VARS}", installation: 'Ansible', inventory: "${INVENTORY_FILE}", playbook: 'ansible_playbook.yml'
              }
         }
     }
