@@ -41,7 +41,6 @@
 
 - name: Enable access to Manager page on Tomcat
   become: yes
-  become: yes
   template:
     src: templates/tomcat-meta-context.xml
     dest: /opt/tomcat/webapps/manager/META-INF/context.xml
